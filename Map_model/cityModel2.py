@@ -285,10 +285,6 @@ inter8.connections += [endpoint9]
 inter2.connections += [endpoint3]
 
 
-
-
-
-
 # Create the simpy 'workers' resource and give it a capacity of 10
 # Workers per truck are 2 per HeavyTruck, 1 per LiteTruck.
 workers = simpy.Resource(env, capacity=12)
@@ -306,7 +302,4 @@ print("workers currently left are", workers.capacity)
 env.run(until=10)
 
 print("heavyTruck1's manifest is: ", heavyTruck1.manifest)
-print("liteTruck3's manifest is: ", liteTruck3.manifest)
 
-print(distance(inter1, inter2))
-print(travel_time(distance(inter1, inter2), 15))
