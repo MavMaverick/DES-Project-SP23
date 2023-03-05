@@ -124,7 +124,7 @@ class Truck:
             self.endpoint = usr_choice  # current becomes user choice
             print("\nTime elapsed: ", env.now)
             yield env.timeout(1)
-            print("workers currently left are", workers.capacity)
+            print("employees currently left are", workers.capacity)
             #yield self.env.timeout(travel_time(distance(self.prev_road, self.endpoint), 15))
 
 
@@ -240,14 +240,14 @@ road4 = Road('road4', [])
 road5 = Road('road5', [])
 road6 = Road('road6', [])
 # Intersection instantiation (8 intersections)
-inter1 = Intersection('inter1', (37.783138, -122.4088327), [road1, road2])
-inter2 = Intersection('inter2', (37.783138, -122.40622400000001), [road1, road3])
-inter3 = Intersection('inter3', (37.791513300000005, -122.40787160000001), [road3, road4])
-inter4 = Intersection('inter4', (37.791376, -122.40897000000001), [road4, road5])
-inter5 = Intersection('inter5', (37.7972799, -122.40897000000001), [road2, road5])
-inter6 = Intersection('inter6', (37.790964100000004, -122.4145993), [road4, road5])
-inter7 = Intersection('inter7', (37.792199800000006, -122.41775720000001), [road4, road6])
-inter8 = Intersection('inter8', (37.783549900000004, -122.4176199), [road5, road6])
+inter1 = Intersection('intersection1', (37.783138, -122.4088327), [road1, road2])
+inter2 = Intersection('intersection2', (37.783138, -122.40622400000001), [road1, road3])
+inter3 = Intersection('intersection3', (37.791513300000005, -122.40787160000001), [road3, road4])
+inter4 = Intersection('intersection4', (37.791376, -122.40897000000001), [road4, road5])
+inter5 = Intersection('intersection5', (37.7972799, -122.40897000000001), [road2, road5])
+inter6 = Intersection('intersection6', (37.790964100000004, -122.4145993), [road4, road5])
+inter7 = Intersection('intersection7', (37.792199800000006, -122.41775720000001), [road4, road6])
+inter8 = Intersection('intersection8', (37.783549900000004, -122.4176199), [road5, road6])
 # Ramp instantiation (5 ramps)
 onramp1 = Ramp('onramp1', (37.784236400000005, -122.4165215), [road1, hwy1], True)
 onramp2 = Ramp('onramp2', (37.7943966, -122.4128144), [road5, hwy2], True)
@@ -285,7 +285,7 @@ inter8.connections += [endpoint9]
 inter2.connections += [endpoint3]
 
 
-# Create the simpy 'workers' resource and give it a capacity of 10
+# Create the simpy 'employees' resource and give it a capacity of 10
 # Workers per truck are 2 per HeavyTruck, 1 per LiteTruck.
 workers = simpy.Resource(env, capacity=12)
 
@@ -297,9 +297,9 @@ liteTruck2 = HeavyTruck(env, 'liteTruck2', 1, endpoint3, [], [], .5)
 liteTruck3 = HeavyTruck(env, 'liteTruck3', 1, endpoint3, [], [], .5)
 liteTruck4 = HeavyTruck(env, 'liteTruck4', 1, endpoint3, [], [], .5)
 
-print("workers currently left are", workers.capacity)
+print("employees currently left are", workers.capacity)
 #  Run simulation for 10 units,
 env.run(until=10)
 
-print("heavyTruck1's manifest is: ", heavyTruck1.manifest)
+print("heavyTruck1's gps is: ", heavyTruck1.manifest)
 
