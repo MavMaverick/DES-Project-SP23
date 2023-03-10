@@ -32,6 +32,7 @@ class turtleMake:
 def turtle_update(turtle_obj, list):
     t = turtle_obj
     print("Starting turtle move")
+    t.pencolor("blue")
     t.pensize(5)
     t.penup()
     t.goto(list[0])

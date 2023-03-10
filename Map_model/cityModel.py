@@ -1,6 +1,6 @@
 import random  # For random.choice() which allows random choices from a list
 import simpy  # for creating the simulation
-import turtle
+
 
 # Create simpy environment
 env = simpy.Environment()  # Initializes simpy environment as 'env'
@@ -61,7 +61,7 @@ class EndPoint:  # Entrance and exit points for the simPy trucks
         self.resource = simpy.Resource(env, capacity=resource_count)
 
 class Truck:
-    def __init__(self, env, name, occupants, start_from, last_location, travel_next, finish_at, gps, turtle):
+    def __init__(self, env, name, occupants, start_from, last_location, travel_next, finish_at, gps):
         self.env = env
         self.name = name
         self.workers = occupants
@@ -70,7 +70,6 @@ class Truck:
         self.travel_next = travel_next
         self.finish_at = finish_at
         self.gps = gps
-        self.turtle = turtle
         self.action = env.process(self.run())
 
     def enqueue(self):
@@ -173,14 +172,14 @@ class Truck:
                     print("      ? There is no left index")
 
 
-            # input("continue?\n ")
+
             print(end=f"Places that {self.name} can travel to: ")
             for i in destinations:
                 print(f"{i.name}", end=', ')
 
             random_choice = random.choice(destinations)
             self.last_location = self.start_from
-            self.turtle_update()
+            #self.turtle_update()
             self.start_from = random_choice
             trip_count += 1
 
@@ -193,6 +192,7 @@ class Truck:
             yield env.timeout(trip_length)
             yield env.process(self.enqueue())
             print(f"{trip_count} movements, current time {env.now}")
+            #input("continue?\n ")
 
             if self.start_from == self.finish_at:
                 print(f"You have arrived at {self.finish_at.name} after {trip_count} locations")
@@ -203,6 +203,7 @@ class Truck:
         t = self.turtle
         t_coord = convert_coordinate(self.start_from.pos)
         print("Starting turtle move")
+        t.speed(0)
         t.pendown()
         t.goto(t_coord)
     def run(self):
@@ -230,7 +231,8 @@ def distance(intersection1, intersection2):  # You can use on any object with a 
     x2, y2 = intersection2.pos
 
     dist = round(((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5, 2)  # Distance formula between two x,y points
-    feet = dist * 500  # ft. Hardcode how many feet per increment on the road network diagram
+    feet_per_increment = 500  # ft. Hardcode how many feet per increment on the road network diagram
+    feet = dist * feet_per_increment
     miles = round(feet * 0.0001894, 2)  # feet converted to miles, rounded to 2 places
     print(f"{miles} miles between {intersection1.name} and {intersection2.name}")
     return miles
@@ -238,7 +240,7 @@ def distance(intersection1, intersection2):  # You can use on any object with a 
 
 def travel_time(miles, speed):
     time_hours = miles / speed  # calculates hours to travel x miles at y speed
-    time_seconds = int(time_hours * 3600)  # convert to seconds and round down to nearest integer
+    time_seconds = round(time_hours * 3600)  # convert to seconds and round up
     return time_seconds, speed
 
 def convert_seconds(seconds):
@@ -247,6 +249,7 @@ def convert_seconds(seconds):
     seconds = (seconds % 3600) % 60
     return f"{hours:02}:{minutes:02}:{seconds:02}"
 
+#  # x = 2.285, y = 2.72
 def convert_coordinate(coord):
     x, y = coord
     if x != 0:
@@ -327,7 +330,7 @@ passengers and vice versa, available to be accessed by trucks as a simpy resourc
 but never zero if not parked.
 """
 
-
+'''
 turtle.setworldcoordinates(-20, -20, 20, 20)
 
 # create a screen object
@@ -355,36 +358,34 @@ turtle4.pensize(3)
 turtle5 = turtle.Turtle()
 turtle5.pencolor("green")
 turtle5.pensize(3)
-
+'''
 
 #  def __init__(self, env, name, occupants, start_from, last_location, travel_next, finish_at, gps):
-Truck1 = Truck(env, 'Truck1', 2, endpoint3, [], [], endpoint9, [], turtle1)
-Truck2 = Truck(env, 'Truck2', 2, endpoint3, [], [], endpoint9, [], turtle2)
-Truck3 = Truck(env, 'Truck3', 2, endpoint3, [], [], endpoint9, [], turtle3)
-Truck4 = Truck(env, 'Truck4', 2, endpoint3, [], [], endpoint9, [], turtle4)
-Truck5 = Truck(env, 'Truck5', 2, endpoint3, [], [], endpoint9, [], turtle5)
-
-
+Truck1 = Truck(env, 'Truck1', 2, endpoint3, [], [], endpoint9, [])
+Truck2 = Truck(env, 'Truck2', 2, endpoint3, [], [], endpoint9, [])
+Truck3 = Truck(env, 'Truck3', 2, endpoint3, [], [], endpoint9, [])
+Truck4 = Truck(env, 'Truck4', 2, endpoint3, [], [], endpoint9, [])
+Truck5 = Truck(env, 'Truck5', 2, endpoint3, [], [], endpoint9, [])
 
 finished_trucks = []
 truck_resource_times = []
 interaction_alert = []
 
-employees = simpy.Resource(env, capacity=20)
+if __name__ == '__main__':  # Main guard, prevents running sim on module import to unittest absoluTest.py
+    employees = simpy.Resource(env, capacity=20)
 
-env.run(until=3600)
+    env.run(until=3600)
 
-print("\n")
-for i in truck_resource_times:
-    print(i)
-
-for i in finished_trucks:
-    if len(finished_trucks) == 0:
-        break
-    else:
+    print("\n")
+    for i in truck_resource_times:
         print(i)
 
-for i in interaction_alert:
-    print(i)
+    for i in finished_trucks:
+        if len(finished_trucks) == 0:
+            break
+        else:
+            print(i)
 
-    turtle.mainloop()  # you need this or main code pauses
+    for i in interaction_alert:
+        print(i)
+
