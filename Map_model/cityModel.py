@@ -8,12 +8,13 @@ env = simpy.Environment()  # Initializes simpy environment as 'env'
 
 class Ramp:  # Ramps are either on or off ramps,
     # pos stands for 'position',it consists of the latitude and longitude as ( , )
-    # r_type is either true or false, true meaning it's an ON ramp, false meaning it's an OFF ramp
-    def __init__(self, name, pos, connections, r_type, resource_count):
+    # ramp_type is either true or false, true meaning it's an ON ramp, false meaning it's an OFF ramp
+    def __init__(self, name, pos, connections, ramp_type, highway_side, resource_count):
         self.name = name
         self.pos = pos
         self.connections = connections
-        self.r_type = r_type
+        self.ramp_type = ramp_type
+        self.highway_side = highway_side
         self.resource_count = resource_count
         self.resource = simpy.Resource(env, capacity=resource_count)
 
@@ -132,8 +133,7 @@ class Truck:
             print(f"{self.name} Preparing to move from {self.start_from.name}")
             for i in self.start_from.connections:
 
-                current_index = self.start_from.connections.index(
-                    i)  # Passes current location's parent road index to curr_indexroad
+                current_index = self.start_from.connections.index(i)  # Passes current location's parent road index to curr_indexroad
                 current_parent_road = self.start_from.connections[current_index]  # passes current i'th  to current_parent_road
                 print(f"[{current_index + 1}/{len(self.start_from.connections)}]")
                 print(f"Generating travel options from {self.start_from.name}'s {current_parent_road.name} parent connection")  # Current roadd
@@ -142,34 +142,57 @@ class Truck:
                 for location in current_parent_road.connections:
                     print(location.name, end=", ")
                 print(end="]")
-
                 curr_roadindex = current_parent_road.connections.index(self.start_from)
-                print(f"\n  Checking closest travel options for {self.start_from.name}, currently index [{curr_roadindex}] in its parent {current_parent_road.name}")
-                if curr_roadindex < len(current_parent_road.connections) - 1:  # Check if objects after current index
-                    next_place = current_parent_road.connections[
-                        curr_roadindex + 1]  # Next potential locale becomes next_place
-                    #print(f"    Right index is {next_place.name}")
 
-                    if next_place == self.last_location and isinstance(next_place, EndPoint):  # if next is same as last place and endpoint, no
-                        print(f"      ! {next_place.name} was the last place, not appending")
-                        pass
+
+
+
+
+
+                print(f"\nChecking closest travel options for {self.start_from.name}, currently index [{curr_roadindex}] in its parent {current_parent_road.name}")
+                if curr_roadindex < len(current_parent_road.connections) - 1:  # Check if objects after current index
+                    next_place = current_parent_road.connections[curr_roadindex + 1]  # Next potential locale becomes next_place
+                    print(f"    ! Right index is {next_place.name}")
+
+                    # if next is same as last place and endpoint, no
+                    if next_place == self.last_location and isinstance(next_place, EndPoint):
+                        print(f"    ! {next_place.name} was the last place, not appending")
+
+                    # elif is Ramp and offramp and last is intersection
+                    elif isinstance(next_place, Ramp) and next_place.ramp_type == False and isinstance(self.last_location, Intersection):
+                        print("    ! Can't go to an offramp from intersection, checking if another right index...")
+                        #  Increment current index within parent road list
+                        curr_roadindex += 1
+                        if curr_roadindex < len(current_parent_road.connections) - 1:  # Check if objects after current index
+                            next_place = current_parent_road.connections[curr_roadindex + 1]  # Next potential locale becomes next_place
+                            print(f"        ! Right index is {next_place.name}")
+                            print("        !! Ruh-roh, better code a method if you plan to loop these checks// error")
+                        else:
+                            print("         !No more right index")
+                    elif isinstance(next_place, Ramp) and next_place.ramp_type == True and isinstance(self.last_location, Ramp) and self.last_location.ramp_type == True:
+                        print("     ! Can't go from an on-ramp to an on-ramp, checking if another right index...")
                     else:
-                        print(f"      + Appending right index {next_place.name}")
+                        print(f"    + Appending right index {next_place.name}")
                         destinations.append(next_place)  # add next_place to
                 else:
-                    print("      ? There is no right index")
+                    print("     ? There is no right index")
+
+
+
+
 
                 if curr_roadindex > 0:  # # Check if objects before current index
                     next_place = current_parent_road.connections[curr_roadindex - 1]
-                    #print(f"    Left index location is {next_place.name}")
+                    print(f"    ! Left index is {next_place.name}")
+
                     if next_place == self.last_location and isinstance(next_place, EndPoint):
-                        print(f"     ! {next_place.name} was the last place, not appending")
+                        print(f"    ! {next_place.name} was the last place, not appending")
                         pass
                     else:
-                        print(f"      + Appending left index {next_place.name}")
+                        print(f"    + Appending left index {next_place.name}")
                         destinations.append(next_place)
                 else:
-                    print("      ? There is no left index")
+                    print("     ? There is no left index")
 
 
 
@@ -179,7 +202,6 @@ class Truck:
 
             random_choice = random.choice(destinations)
             self.last_location = self.start_from
-            #self.turtle_update()
             self.start_from = random_choice
             trip_count += 1
 
@@ -199,13 +221,7 @@ class Truck:
                 finished_trucks.append(f"\n{self.name} finished after {convert_seconds(env.now)} or {env.now} seconds, {trip_count} movements, ")
                 return
 
-    def turtle_update(self):
-        t = self.turtle
-        t_coord = convert_coordinate(self.start_from.pos)
-        print("Starting turtle move")
-        t.speed(0)
-        t.pendown()
-        t.goto(t_coord)
+
     def run(self):
         global truck_resource_times
 
@@ -281,11 +297,11 @@ road5 = Road('road5', [], 25)
 road6 = Road('road6', [], 25)
 
 # Ramp instantiation (5 ramps)
-onramp1 = Ramp('onramp1', (4.5, 5.7), [road1, hwy1], True, 1)
-onramp2 = Ramp('onramp2', (8.2, 14.3), [road5, hwy2], True, 1)
-offramp1 = Ramp('offramp1', (3.8, 6.3), [hwy1, road6], False, 1)
-offramp2 = Ramp('offramp2', (11.7, 16.2), [hwy1, road3], False, 1)
-offramp3 = Ramp('offramp3', (8.7, 14.8), [hwy2, road5], False, 1)
+onramp1 = Ramp('onramp1', (4.5, 5.7), [road1, hwy1], True, 'right', 1)
+onramp2 = Ramp('onramp2', (8.2, 14.3), [road5, hwy2], True, 'left', 1)
+offramp1 = Ramp('offramp1', (3.8, 6.3), [hwy1, road6], False, 'left', 1)
+offramp2 = Ramp('offramp2', (11.7, 16.2), [hwy1, road3], False, 'right', 1)
+offramp3 = Ramp('offramp3', (8.7, 14.8), [hwy2, road5], False, 'right', 1)
 
 # Intersection instantiation (8 intersections)
 intersection1 = Intersection('intersection1', (10.2, 6), [road1, road2], 1)
@@ -324,49 +340,15 @@ road6.connections += [endpoint7, intersection7, intersection8, offramp1]
 hwy1.connections += [endpoint10, offramp2, hwyinter1, offramp1, onramp1, endpoint12]
 hwy2.connections += [endpoint11, onramp2, offramp3, hwyinter1, endpoint13]
 
-"""
-The amount of available employees should represent the amount of passengers and drivers, assuming drivers can be 
-passengers and vice versa, available to be accessed by trucks as a simpy resource. Trucks can have more than 1 occupant
-but never zero if not parked.
-"""
-
-'''
-turtle.setworldcoordinates(-20, -20, 20, 20)
-
-# create a screen object
-screen = turtle.Screen()
-
-# set the background image
-screen.bgpic("C:\\Users\\kjpre\\PycharmProjects\\DES-Project-SP23\\Map_model\\diagram.png")
-
-turtle1 = turtle.Turtle()
-turtle1.pencolor("red")
-turtle1.pensize(3)
-
-turtle2 = turtle.Turtle()
-turtle2.pencolor("blue")
-turtle2.pensize(3)
-
-turtle3 = turtle.Turtle()
-turtle3.pencolor("purple")
-turtle3.pensize(3)
-
-turtle4 = turtle.Turtle()
-turtle4.pencolor("orange")
-turtle4.pensize(3)
-
-turtle5 = turtle.Turtle()
-turtle5.pencolor("green")
-turtle5.pensize(3)
-'''
 
 #  def __init__(self, env, name, occupants, start_from, last_location, travel_next, finish_at, gps):
 Truck1 = Truck(env, 'Truck1', 2, endpoint3, [], [], endpoint9, [])
+'''
 Truck2 = Truck(env, 'Truck2', 2, endpoint3, [], [], endpoint9, [])
 Truck3 = Truck(env, 'Truck3', 2, endpoint3, [], [], endpoint9, [])
 Truck4 = Truck(env, 'Truck4', 2, endpoint3, [], [], endpoint9, [])
 Truck5 = Truck(env, 'Truck5', 2, endpoint3, [], [], endpoint9, [])
-
+'''
 finished_trucks = []
 truck_resource_times = []
 interaction_alert = []
@@ -374,7 +356,7 @@ interaction_alert = []
 if __name__ == '__main__':  # Main guard, prevents running sim on module import to unittest absoluTest.py
     employees = simpy.Resource(env, capacity=20)
 
-    env.run(until=3600)
+    env.run(until=300)
 
     print("\n")
     for i in truck_resource_times:
