@@ -1,13 +1,10 @@
 import turtle
 turtle.setworldcoordinates(-20, -20, 20, 20)
-
 # create a screen object
 screen = turtle.Screen()
-
 # set the background image
 screen.bgpic("C:\\Users\\kjpre\\PycharmProjects\\DES-Project-SP23\\Map_model\\diagram.png")
 
-# create a turtle object
 
 def convert_coordinate(coord):
     x, y = coord

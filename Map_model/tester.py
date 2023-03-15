@@ -1,4 +1,3 @@
-
 from cityModel import travel_time
 import unittest
 
