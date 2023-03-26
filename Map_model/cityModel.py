@@ -2,6 +2,10 @@ import random
 # For random.choice() which allows random choices from a list
 import simpy
 # import simpy for discrete simulation use
+import pprint
+import turtle
+turtle.tracer(0)
+
 env = simpy.Environment()
 # Initializes discrete simulation environment as 'env' using simpy
 
@@ -70,15 +74,17 @@ class EndPoint:
 
 class Truck:
     #  Makes the Truck when passed to an object
-    def __init__(self, env, name, occupants, start_from, last_location, travel_next, finish_at, gps):
+    def __init__(self, env, name, occupants, start_from, previous_location, travel_next, finish_at, gps, turt, turt_text):
         self.env = env
         self.name = name
         self.workers = occupants
         self.start_from = start_from
-        self.last_location = last_location
+        self.previous_location = previous_location
         self.travel_next = travel_next
         self.finish_at = finish_at
         self.gps = gps
+        self.turt = turt
+        self.turt_text = turt_text
 
         self.action = env.process(self.run())
 
@@ -92,6 +98,7 @@ class Truck:
             print(f"{self.name} enqueuing at {self.start_from.name} at  {arrival_time}")
             with self.start_from.resource.request() as req:
                 yield req
+
                 # do something with resource
                 received_resource_time = env.now
                 wait_time = received_resource_time - arrival_time
@@ -100,7 +107,7 @@ class Truck:
                     interaction_alert.append(f"{self.name} had to give right of way at "
                                              f"{self.start_from.name} at {arrival_time}")
 
-                yield self.env.timeout(1)  # simulate time it takes for truck to cross road
+                yield self.env.timeout(3)  # simulate time it takes for truck to cross road
             print(f"{self.name} has finished crossing {self.start_from.name} at {env.now}")
 
     def traverse(self):
@@ -125,34 +132,36 @@ class Truck:
                 for location in current_parent_road.connections:
                     print(location.name, end=", ")
                 print(end="]")
-                curr_roadindex = current_parent_road.connections.index(self.start_from)
+                curr_road_index = current_parent_road.connections.index(self.start_from)
 
                 print(f"\nChecking closest travel options for {self.start_from.name},"
-                      f" currently index [{curr_roadindex}] in its parent {current_parent_road.name}")
+                      f" currently index [{curr_road_index}] in its parent {current_parent_road.name}")
                 # Check if objects after current index
-                if curr_roadindex < len(current_parent_road.connections) - 1:
+                if curr_road_index < len(current_parent_road.connections) - 1:
                     # Next potential locale becomes next_place
-                    next_place = current_parent_road.connections[curr_roadindex + 1]
+                    next_place = current_parent_road.connections[curr_road_index + 1]
                     print(f"    ! Right index is {next_place.name}")
 
                     # if next is same as last place and endpoint, no
-                    if next_place == self.last_location and isinstance(next_place, EndPoint):
+                    if next_place == self.previous_location and isinstance(next_place, EndPoint):
                         print(f"    ! {next_place.name} was the last place, not appending")
                     else:
                         print(f"    + Appending right index {next_place.name}")
                         destinations.append(next_place)  # add next_place to11
+                        print(current_parent_road.speed)
                 else:
                     print("     ? There is no right index")
-                if curr_roadindex > 0:  # # Check if objects before current index
-                    next_place = current_parent_road.connections[curr_roadindex - 1]
+                if curr_road_index > 0:  # # Check if objects before current index
+                    next_place = current_parent_road.connections[curr_road_index - 1]
                     print(f"    ! Left index is {next_place.name}")
 
-                    if next_place == self.last_location and isinstance(next_place, EndPoint):
+                    if next_place == self.previous_location and isinstance(next_place, EndPoint):
                         print(f"    ! {next_place.name} was the last place, not appending")
                         pass
                     else:
                         print(f"    + Appending left index {next_place.name}")
                         destinations.append(next_place)
+                        print(current_parent_road.speed)
                 else:
                     print("     ? There is no left index")
 
@@ -161,16 +170,19 @@ class Truck:
                 print(f"{i.name}", end=', ')
 
             random_choice = random.choice(destinations)
-            self.last_location = self.start_from
+            self.travel_next = random_choice
+            self.previous_location = self.start_from
             self.start_from = random_choice
             trip_count += 1
 
             print(f"\n{self.name} randomly picks {random_choice.name}")
-            miles_between = distance(self.last_location, self.start_from)
+            miles_between, coord_distance = distance(self.previous_location, self.start_from)
             trip_length, trip_speed = travel_time(miles_between, current_parent_road.speed)
+            print(current_parent_road.speed)
             print(f"Trip expected to last {trip_length} seconds at {trip_speed}mph")
 
-            yield env.timeout(trip_length)
+            yield env.process(self.coordinate_crawl(coord_distance, trip_length))
+            #yield env.timeout(trip_length)
             yield env.process(self.enqueue())
             print(f"{trip_count} movements, current time {env.now}")
 
@@ -180,6 +192,35 @@ class Truck:
                                        f"{convert_seconds(env.now)} or "
                                        f"{env.now} seconds, {trip_count} movements, ")
                 return
+
+    # def __init__(self, env, name, occupants, start_from, previous_location, travel_next, finish_at, gps):
+    def coordinate_crawl(self, distance, duration):
+        global process_locations_per_second
+        start = convert_coordinate(self.previous_location.pos)
+        current = start
+        end = convert_coordinate(self.travel_next.pos)
+        #print(f"{self.previous_location.name}, {self.previous_location.pos} start and end is {self.travel_next.name}, {self.travel_next.pos}")
+        dx = end[0] - start[0]
+        dy = end[1] - start[1]
+        delta = distance / duration
+
+        for i in range(duration):
+            current = (current[0] + delta * dx / distance, current[1] + delta * dy / distance)
+            current = round(current[0], 2), round(current[1], 2)
+            # current is now a correct coordinate
+            #print(f"Incremented coord is now {current}, started at {self.previous_location.pos}")
+
+            process_locations_per_second[env.now][f"{self.name}"] = current
+            #print(f"{self.name} did a coordcrawl")
+            yield self.env.timeout(1)  # simulate time spent moving 1 second
+
+        current = convert_coordinate(self.start_from.pos)
+        process_locations_per_second[env.now][f"{self.name}"] = current
+
+
+        return
+
+    #  Suggestion, replace your time increment with env.now for realistic sim time
 
     def run(self):
         #  Starts the truck object process in the simulation
@@ -203,6 +244,18 @@ class Truck:
         print(f"Releasing employee")
 
 
+
+
+
+def second_key_maker(env):
+    global process_locations_per_second
+
+    while True:
+        process_locations_per_second[env.now] = {}
+        #print(f"executed key maker at {env.now}")
+        yield env.timeout(1)
+
+
 def distance(location1, location2):
     # You can use on any object with a pos attribute
     x1, y1 = location1.pos  # take parameter 1, pass x and y coordinate to x1, y1
@@ -215,7 +268,7 @@ def distance(location1, location2):
     # feet converted to miles, rounded to 2 places
     miles = round(feet * 0.0001894, 2)
     print(f"{miles} miles between {location1.name} and {location2.name}")
-    return miles
+    return miles, dist
 
 
 def travel_time(miles, speed):
@@ -235,6 +288,7 @@ def convert_seconds(seconds):
 
 
 def convert_coordinate(coord):
+
     # Convert coordinates to diagram compatible coordinates from its unique origin
     # x = 2.285, y = 2.72, for each square increment on diagram
     x, y = coord
@@ -262,6 +316,46 @@ def global_print(global1, global2, global3):
         print(i)
 
 
+def turtle_commander(truck, pos):
+    if pos == None:
+        return
+    else:
+        truck.turt.setpos(pos)
+        truck.turt_text.setpos(truck.turt.position())
+        truck.turt_text.write(f"{truck.name}")
+
+
+def dict_looper(nested_dict):
+    global stored_turtles
+
+    turtle.setworldcoordinates(-20, -20, 20, 20)
+    # create a screen object
+    screen = turtle.Screen()
+    # set the background image
+    screen.bgpic("C:\\Users\\kjpre\\PycharmProjects\\DES-Project-SP23\\Map_model\\diagram.png")
+    screen.title("Road Network, Subvectio MN")
+
+    level = 0
+
+    while True:
+        t1_text.clear()
+        t2_text.clear()
+        t3_text.clear()
+        t4_text.clear()
+        t5_text.clear()
+
+        print(f"{level} at {nested_dict[level].items()}")
+        for i in truck_list:
+            turtle_commander(i, nested_dict[level].get(f"{i.name}"))
+
+        turtle.update()
+        user_input = input("enter continue, '\\' back")
+        if user_input == '\\':
+            level -= 1
+        else:
+            level += 1
+
+
 # Highway instantiation (2 highways)
 hwy1 = Highway('highway1', [], 45)
 hwy2 = Highway('highway2', [], 45)
@@ -285,8 +379,8 @@ offRamp2 = Ramp('offRamp2', (11.7, 16.2), [hwy1, road3], False, 'right', 1)
 offRamp3 = Ramp('offRamp3', (8.7, 14.8), [hwy2, road5], False, 'right', 1)
 
 # Intersection instantiation (8 intersections)
-intersection1 = Intersection('location1', (10.2, 6), [road1, road2], 1)
-intersection2 = Intersection('location2', (12, 6), [road1, road3], 1)
+intersection1 = Intersection('intersection1', (10.2, 6), [road1, road2], 1)
+intersection2 = Intersection('intersection2', (12, 6), [road1, road3], 1)
 intersection3 = Intersection('intersection3', (11.8, 12.2), [road3, road4], 1)
 intersection4 = Intersection('intersection4', (10, 12), [road2, road4], 1)
 intersection5 = Intersection('intersection5', (10, 16.3), [road2, road5], 1)
@@ -321,23 +415,71 @@ road6.connections += [endpoint7, intersection7, intersection8, offRamp1]
 hwy1.connections += [endpoint10, offRamp2, highwayIntersection1, offRamp1, onRamp1, endpoint12]
 hwy2.connections += [endpoint11, onRamp2, offRamp3, highwayIntersection1, endpoint13]
 
+t1 = turtle.Turtle()
+t1.pencolor("red")
+t1_text = turtle.Turtle()
+t1_text.ht()
 
-#  def __init__(self, env, name, occupants, start_from, last_location, travel_next, finish_at, gps):
-Truck1 = Truck(env, 'Truck1', 2, endpoint3, [], [], endpoint9, [])
-Truck2 = Truck(env, 'Truck2', 2, endpoint3, [], [], endpoint9, [])
-Truck3 = Truck(env, 'Truck3', 2, endpoint3, [], [], endpoint9, [])
-Truck4 = Truck(env, 'Truck4', 2, endpoint3, [], [], endpoint9, [])
-Truck5 = Truck(env, 'Truck5', 2, endpoint3, [], [], endpoint9, [])
+t2 = turtle.Turtle()
+t2.pencolor("blue")
+t2_text = turtle.Turtle()
+t2_text.ht()
+
+t3 = turtle.Turtle()
+t3.pencolor("green")
+t3_text = turtle.Turtle()
+t3_text.ht()
+
+t4 = turtle.Turtle()
+t4.pencolor("purple")
+t4_text = turtle.Turtle()
+t4_text.ht()
+
+t5 = turtle.Turtle()
+t5_text = turtle.Turtle()
+t5_text.ht()
+
+stored_turtles = []
+stored_turtles.append(t1)
+stored_turtles.append(t2)
+stored_turtles.append(t3)
+stored_turtles.append(t4)
+stored_turtles.append(t5)
+
+env.process(second_key_maker(env))
+# Have this before truck objects to ensure it runs first
+
+#  def __init__(self, env, name, occupants, start_from, previous_location, travel_next, finish_at, gps):
+Truck1 = Truck(env, 'Truck1', 2, endpoint3, [], [], endpoint9, [], t1, t1_text)
+Truck2 = Truck(env, 'Truck2', 2, endpoint3, [], [], endpoint9, [], t2, t2_text)
+Truck3 = Truck(env, 'Truck3', 2, endpoint3, [], [], endpoint9, [], t3, t3_text)
+Truck4 = Truck(env, 'Truck4', 2, endpoint3, [], [], endpoint9, [], t4, t4_text)
+Truck5 = Truck(env, 'Truck5', 2, endpoint3, [], [], endpoint9, [], t5, t5_text)
+
+truck_list = []
+truck_list.append(Truck1)
+truck_list.append(Truck2)
+truck_list.append(Truck3)
+truck_list.append(Truck4)
+truck_list.append(Truck5)
 
 finished_trucks = []
 truck_resource_times = []
 interaction_alert = []
+process_locations_per_second = {}
+
 
 
 if __name__ == '__main__':  # Main guard, prevents running sim on module import to unittest tester.py
 
+    sim_time = 3600
     employees = simpy.Resource(env, capacity=20)
-    env.run(until=3600)
+    env.run(until=sim_time)
     print("\n\n")
 
     global_print(finished_trucks, truck_resource_times, interaction_alert)
+
+    #pprint.pprint(process_locations_per_second)
+    dict_looper(process_locations_per_second)
+
+    turtle.mainloop()

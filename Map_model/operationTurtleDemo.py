@@ -1,9 +1,11 @@
 import turtle
+
 turtle.setworldcoordinates(-20, -20, 20, 20)
 # create a screen object
 screen = turtle.Screen()
 # set the background image
 screen.bgpic("C:\\Users\\kjpre\\PycharmProjects\\DES-Project-SP23\\Map_model\\diagram.png")
+screen.title("Road Network, Subvectio MN")
 
 
 def convert_coordinate(coord):
@@ -41,7 +43,7 @@ def turtle_update(turtle_obj, list):
 
 # x = 2.285, y = 2.72
 
-object1 = (-20.6, -27.6)
+
 object2 = (10.704, -11.008)
 object3 = (6.820, -11.280)
 object4 = (2.707, -11.280)
@@ -69,4 +71,5 @@ print(convert_coordinate(cord))
 
 turtle_update(turtle, obj_list)
 
+turtle.exitonclick()
 turtle.mainloop()  #you need this or main code pauses
