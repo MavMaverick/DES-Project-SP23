@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ad020c54-00c1-492b-85b6-6273c18de125" name="Changes" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Merge.Settings">
+    <option name="BRANCH" value="origin/Map_modeling" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="Map_modeling" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">
+    <option name="selectedUrlAndAccountId">
+      <UrlAndAccount>
+        <option name="accountId" value="bd304731-548c-4fa6-93cd-a9ee41ffd1d6" />
+        <option name="url" value="https://github.com/MavMaverick/DES-Project-SP23.git" />
+      </UrlAndAccount>
+    </option>
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2LbM3H6aijlrFooTes5WNS8oUzg" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/kjpre/PycharmProjects/DES-Project-SP23&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;aDefault&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.ide.settings.new.ui&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\kjpre\PycharmProjects\DES-Project-SP23\Map_model" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ad020c54-00c1-492b-85b6-6273c18de125" name="Changes" comment="" />
+      <created>1676135130898</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1676135130898</updated>
+    </task>
+    <task id="LOCAL-00001" summary="Changed classes for the cityModel.py along with different instantiation and moved it to a new file, cityModel12.py. &#10;&#10;It's a temporary file so I can keep the code I wrote previously.&#10;&#10;Added additional functions: distance() checks two intersections for if they share a road, see_connections(obj) loops through objects and prints them. distance_func_test() just testing distance(). And navigate(road) is a work in progress method for traveling objects but it's not fixed yet.">
+      <created>1676171290088</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1676171290088</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Cleaned up navigate() func, it can now traverse all connected objects in the road network while keeping track of where its' last stop was, whether it can go on a ramp or not based on its location.&#10;&#10;Removed str def for 'connections' on all classes, it just printed their mem location anyway. Added r_type attribute to ramps, which tells if it's on or off.&#10;&#10;&#10;&#10;Added 'Truck' class, beginning to implement simpy. Imported simpy.">
+      <created>1676506842383</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1676506842383</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Added additional functions for queueing and traversing road network.">
+      <created>1677200061047</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1677200061047</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Merge map modeling into Main">
+      <created>1677200355710</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1677200355710</updated>
+    </task>
+    <task id="LOCAL-00005" summary="cityModel has significant changes that puts it ahead of cityModel2.py. &#10;&#10;The simpy contents of cityModel2 needs to be transferred over to cityModel1.&#10;&#10;Lat/long coords in cityModel1 have been turned into XY coords, a new function will need to be made to convert xy coords to lat/long, I have two functions that already do this so it shouldn't be difficult to automate.&#10;&#10;distance() and ()travel_time have both been improved.&#10;&#10;traverse() can succesfully traverse the now fully instantiated road network, somewhat less-than-legally.&#10;&#10;Docstring added for traverse()">
+      <created>1677385099844</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1677385099844</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Turtle visualization.">
+      <created>1677995871137</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1677995871137</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Disabled turtle visualization in cityModel.py, it's is MASSIVELY innacurate for presenting what is going on. &#10;&#10;Added a new file, absoluTest.py, which uses unittest to test functions from cityModel, already fixed one accuracy bug in travel_time() with it!">
+      <created>1678487831240</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1678487831240</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Cleaned up code in cityModel.py, removed turtle visualizer until it can be fixed appropriately. Renamed absoluTester.py to tester.py.">
+      <created>1678919570105</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1678919570105</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Working visualization for the discrete simulator.&#10;Issues:&#10;Currently the turtles do not accurately represent the heading of their direction (they don't point where they're going and they don't point in the direction they were going if you go back in time). This could be fixed by using turtle.headingto(location) which will point the turtle in the direction of a coordinate, turtle.setpos() only moves a turtle and does not orient the turtle to the coordinate it is being moved to. &#10;&#10;Despite being explicitly told to have color, all l turtles have turned back to black for some reason after initially having color. This error was caught later and the exact cause is not known yet.  &#10;&#10;There is an issue with the turtle graphics window freezing for 5 seconds at the start of the simulation where it cannot be interacted with. &#10;&#10;A coordinate conversion function is needed to be able to map the turtle to the background diagram, if this could be solved by sending the turtle origin to the diagram origin, the code could be much simpler. &#10;&#10;Turtle.clear() within coordinate_crawl method needs to be fixed as it accidentally clears text of turtles texts that are attached to turtle trucks that are not moving. Turtle trucks that have finished end up being displayed with no name.  &#10;&#10;All turtles could be enlarged for visibility. &#10;&#10;Turtle name text sometimes overlaps. &#10;&#10;Visualizer does not work on other devices, need to fix the root path for turtle.scrbackground() so it runs without needing to change the path of the road network diagram.">
+      <created>1679803719993</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1679803719993</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Visualizer currently works, moving onto other deliverables and merging this back into main to open a new branch.&#10;&#10;Issues: Visualizer&#10;- Turtle window stays open while running DES, unable to interactt with for 5 seconds when dict_loop() called.&#10;Issues: DES&#10;- Truck methods do not use all of the attibutes, some are not used correctly or too obtusely)&#10;&#10;1. Removed 'gps' attribute from Truck, unused.">
+      <created>1680100586290</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1680100586290</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Changed classes for the cityModel.py along with different instantiation and moved it to a new file, cityModel12.py. &#10;&#10;It's a temporary file so I can keep the code I wrote previously.&#10;&#10;Added additional functions: distance() checks two intersections for if they share a road, see_connections(obj) loops through objects and prints them. distance_func_test() just testing distance(). And navigate(road) is a work in progress method for traveling objects but it's not fixed yet." />
+    <MESSAGE value="Cleaned up navigate() func, it can now traverse all connected objects in the road network while keeping track of where its' last stop was, whether it can go on a ramp or not based on its location.&#10;&#10;Removed str def for 'connections' on all classes, it just printed their mem location anyway. Added r_type attribute to ramps, which tells if it's on or off.&#10;&#10;&#10;&#10;Added 'Truck' class, beginning to implement simpy. Imported simpy." />
+    <MESSAGE value="Added additional functions for queueing and traversing road network." />
+    <MESSAGE value="Merge map modeling into Main" />
+    <MESSAGE value="cityModel has significant changes that puts it ahead of cityModel2.py. &#10;&#10;The simpy contents of cityModel2 needs to be transferred over to cityModel1.&#10;&#10;Lat/long coords in cityModel1 have been turned into XY coords, a new function will need to be made to convert xy coords to lat/long, I have two functions that already do this so it shouldn't be difficult to automate.&#10;&#10;distance() and ()travel_time have both been improved.&#10;&#10;traverse() can succesfully traverse the now fully instantiated road network, somewhat less-than-legally.&#10;&#10;Docstring added for traverse()" />
+    <MESSAGE value="Turtle visualization." />
+    <MESSAGE value="Disabled turtle visualization in cityModel.py, it's is MASSIVELY innacurate for presenting what is going on. &#10;&#10;Added a new file, absoluTest.py, which uses unittest to test functions from cityModel, already fixed one accuracy bug in travel_time() with it!" />
+    <MESSAGE value="Cleaned up code in cityModel.py, removed turtle visualizer until it can be fixed appropriately. Renamed absoluTester.py to tester.py." />
+    <MESSAGE value="Working visualization for the discrete simulator.&#10;Issues:&#10;Currently the turtles do not accurately represent the heading of their direction (they don't point where they're going and they don't point in the direction they were going if you go back in time). This could be fixed by using turtle.headingto(location) which will point the turtle in the direction of a coordinate, turtle.setpos() only moves a turtle and does not orient the turtle to the coordinate it is being moved to. &#10;&#10;Despite being explicitly told to have color, all l turtles have turned back to black for some reason after initially having color. This error was caught later and the exact cause is not known yet.  &#10;&#10;There is an issue with the turtle graphics window freezing for 5 seconds at the start of the simulation where it cannot be interacted with. &#10;&#10;A coordinate conversion function is needed to be able to map the turtle to the background diagram, if this could be solved by sending the turtle origin to the diagram origin, the code could be much simpler. &#10;&#10;Turtle.clear() within coordinate_crawl method needs to be fixed as it accidentally clears text of turtles texts that are attached to turtle trucks that are not moving. Turtle trucks that have finished end up being displayed with no name.  &#10;&#10;All turtles could be enlarged for visibility. &#10;&#10;Turtle name text sometimes overlaps. &#10;&#10;Visualizer does not work on other devices, need to fix the root path for turtle.scrbackground() so it runs without needing to change the path of the road network diagram." />
+    <MESSAGE value="Visualizer currently works, moving onto other deliverables and merging this back into main to open a new branch.&#10;&#10;Issues: Visualizer&#10;- Turtle window stays open while running DES, unable to interactt with for 5 seconds when dict_loop() called.&#10;Issues: DES&#10;- Truck methods do not use all of the attibutes, some are not used correctly or too obtusely)&#10;&#10;1. Removed 'gps' attribute from Truck, unused." />
+    <option name="LAST_COMMIT_MESSAGE" value="Visualizer currently works, moving onto other deliverables and merging this back into main to open a new branch.&#10;&#10;Issues: Visualizer&#10;- Turtle window stays open while running DES, unable to interactt with for 5 seconds when dict_loop() called.&#10;Issues: DES&#10;- Truck methods do not use all of the attibutes, some are not used correctly or too obtusely)&#10;&#10;1. Removed 'gps' attribute from Truck, unused." />
+  </component>
+</project>
