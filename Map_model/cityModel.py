@@ -74,7 +74,7 @@ class EndPoint:
 
 class Truck:
     #  Makes the Truck when passed to an object
-    def __init__(self, env, name, occupants, start_from, previous_location, travel_next, finish_at, gps, turt, turt_text):
+    def __init__(self, env, name, occupants, start_from, previous_location, travel_next, finish_at, turt, turt_text):
         self.env = env
         self.name = name
         self.workers = occupants
@@ -82,7 +82,6 @@ class Truck:
         self.previous_location = previous_location
         self.travel_next = travel_next
         self.finish_at = finish_at
-        self.gps = gps
         self.turt = turt
         self.turt_text = turt_text
 
@@ -450,11 +449,11 @@ env.process(second_key_maker(env))
 # Have this before truck objects to ensure it runs first
 
 #  def __init__(self, env, name, occupants, start_from, previous_location, travel_next, finish_at, gps):
-Truck1 = Truck(env, 'Truck1', 2, endpoint3, [], [], endpoint9, [], t1, t1_text)
-Truck2 = Truck(env, 'Truck2', 2, endpoint3, [], [], endpoint9, [], t2, t2_text)
-Truck3 = Truck(env, 'Truck3', 2, endpoint3, [], [], endpoint9, [], t3, t3_text)
-Truck4 = Truck(env, 'Truck4', 2, endpoint3, [], [], endpoint9, [], t4, t4_text)
-Truck5 = Truck(env, 'Truck5', 2, endpoint3, [], [], endpoint9, [], t5, t5_text)
+Truck1 = Truck(env, 'Truck1', 2, endpoint3, [], [], endpoint9, t1, t1_text)
+Truck2 = Truck(env, 'Truck2', 2, endpoint3, [], [], endpoint9, t2, t2_text)
+Truck3 = Truck(env, 'Truck3', 2, endpoint3, [], [], endpoint9, t3, t3_text)
+Truck4 = Truck(env, 'Truck4', 2, endpoint3, [], [], endpoint9, t4, t4_text)
+Truck5 = Truck(env, 'Truck5', 2, endpoint3, [], [], endpoint9, t5, t5_text)
 
 truck_list = []
 truck_list.append(Truck1)
@@ -480,6 +479,8 @@ if __name__ == '__main__':  # Main guard, prevents running sim on module import 
     global_print(finished_trucks, truck_resource_times, interaction_alert)
 
     #pprint.pprint(process_locations_per_second)
-    dict_looper(process_locations_per_second)
 
-    turtle.mainloop()
+    #dict_looper(process_locations_per_second)
+
+
+
