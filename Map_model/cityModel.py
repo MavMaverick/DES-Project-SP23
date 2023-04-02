@@ -4,7 +4,7 @@ import simpy
 # import simpy for discrete simulation use
 import pprint
 import turtle
-turtle.tracer(0)
+
 
 env = simpy.Environment()
 # Initializes discrete simulation environment as 'env' using simpy
@@ -22,6 +22,7 @@ class Ramp:
         self.highway_side = highway_side
         self.resource_count = resource_count
         self.resource = simpy.Resource(env, capacity=resource_count)
+        global_node_list.append(self)  # Append 4this object to global list when instantiated (less work)
 
 
 class Intersection:
@@ -33,6 +34,7 @@ class Intersection:
         self.connections = connections
         self.resource_count = resource_count
         self.resource = simpy.Resource(env, capacity=resource_count)
+        global_node_list.append(self)  # Append 4this object to global list when instantiated (less work)
 
 
 class HwyIntersection:
@@ -43,6 +45,7 @@ class HwyIntersection:
         self.connections = connections
         self.resource_count = resource_count
         self.resource = simpy.Resource(env, capacity=resource_count)
+        global_node_list.append(self)  # Append 4this object to global list when instantiated (less work)
 
 
 class Highway:
@@ -51,6 +54,7 @@ class Highway:
         self.name = name
         self.connections = connections
         self.speed = speed
+
 
 
 class Road:
@@ -70,11 +74,12 @@ class EndPoint:
         self.connections = connections
         self.resource_count = resource_count
         self.resource = simpy.Resource(env, capacity=resource_count)
+        global_node_list.append(self)  # Append 4this object to global list when instantiated (less work)
 
 
 class Truck:
     #  Makes the Truck when passed to an object
-    def __init__(self, env, name, occupants, start_from, previous_location, travel_next, finish_at, turt, turt_text):
+    def __init__(self, env, name, occupants, start_from, previous_location, travel_next, finish_at, turt, turt_text, idle_rate, mpg, weight, truck_state, fuel):
         self.env = env
         self.name = name
         self.workers = occupants
@@ -84,6 +89,12 @@ class Truck:
         self.finish_at = finish_at
         self.turt = turt
         self.turt_text = turt_text
+        self.idle_rate = idle_rate
+        self.mpg = mpg
+        self.weight = weight
+        self.truck_state = truck_state
+        self.fuel = fuel
+
 
         self.action = env.process(self.run())
 
@@ -180,7 +191,7 @@ class Truck:
             print(current_parent_road.speed)
             print(f"Trip expected to last {trip_length} seconds at {trip_speed}mph")
 
-            yield env.process(self.coordinate_crawl(coord_distance, trip_length))
+            yield env.process(self.coordinate_crawl(coord_distance, trip_length, trip_speed))
             #yield env.timeout(trip_length)
             yield env.process(self.enqueue())
             print(f"{trip_count} movements, current time {env.now}")
@@ -191,9 +202,18 @@ class Truck:
                                        f"{convert_seconds(env.now)} or "
                                        f"{env.now} seconds, {trip_count} movements, ")
                 return
+    def calculate_fuel_consumption(self, speed):
+        tk = self
+        if tk.truck_state == 'stopped':
+            fuel_consumed = tk.idle_rate
+        else:
+            miles_per_gallon = adjust_mpg_for_weight(tk.weight, tk.mpg)
+            fuel_consumed = fuel_consumption_per_second(speed, miles_per_gallon)
+        return fuel_consumed
+
 
     # def __init__(self, env, name, occupants, start_from, previous_location, travel_next, finish_at, gps):
-    def coordinate_crawl(self, distance, duration):
+    def coordinate_crawl(self, distance, duration, speed):
         global process_locations_per_second
         start = convert_coordinate(self.previous_location.pos)
         current = start
@@ -209,17 +229,23 @@ class Truck:
             # current is now a correct coordinate
             #print(f"Incremented coord is now {current}, started at {self.previous_location.pos}")
 
-            process_locations_per_second[env.now][f"{self.name}"] = current
+            self.fuel -= self.calculate_fuel_consumption(speed)
+            process_locations_per_second[env.now][f"{self.name}"] = (current, self.fuel)
             #print(f"{self.name} did a coordcrawl")
+
             yield self.env.timeout(1)  # simulate time spent moving 1 second
 
+
         current = convert_coordinate(self.start_from.pos)
-        process_locations_per_second[env.now][f"{self.name}"] = current
+        self.fuel -= self.calculate_fuel_consumption(speed)
+        process_locations_per_second[env.now][f"{self.name}"] = (current, self.fuel)
 
 
         return
 
     #  Suggestion, replace your time increment with env.now for realistic sim time
+
+
 
     def run(self):
         #  Starts the truck object process in the simulation
@@ -243,7 +269,16 @@ class Truck:
         print(f"Releasing employee")
 
 
+def fuel_consumption_per_second(speed, mpg):
+    fuel_consumption = (speed / mpg) / 3600
+    return fuel_consumption
 
+
+def adjust_mpg_for_weight(weight, initial_mpg):
+    weight_factor = weight / 100.0
+    mpg_adjustment = weight_factor * 0.02
+    adjusted_mpg = initial_mpg - mpg_adjustment
+    return adjusted_mpg
 
 
 def second_key_maker(env):
@@ -315,23 +350,68 @@ def global_print(global1, global2, global3):
         print(i)
 
 
-def turtle_commander(truck, pos):
-    if pos == None:
+def turtle_commander(truck, truck_data, direction):
+    font = ("Arial", 13, "normal")
+    t = truck.turt
+    ttex = truck.turt_text
+    if truck_data == None:
         return
+    elif direction == 'backward':
+        t.setpos(truck_data[0])
+        ttex.setpos(truck.turt.position())
+        ttex.write(f"{truck.name}\n fuel {round(truck_data[1], 3)}", font=font)
+
     else:
-        truck.turt.setpos(pos)
-        truck.turt_text.setpos(truck.turt.position())
-        truck.turt_text.write(f"{truck.name}")
+        angle = t.towards(truck_data[0])
+        t.setheading(angle)
+        t.setpos(truck_data[0])
+        ttex.setpos(truck.turt.position())
+        ttex.write(f"{truck.name}\n fuel {round(truck_data[1], 3)}", font=font)
+
+
 
 
 def dict_looper(nested_dict):
-    global stored_turtles
-
+    turtle.tracer(0)
     turtle.setworldcoordinates(-20, -20, 20, 20)
+
+    t1 = turtle.Turtle()
+    t1_text = turtle.Turtle()
+    Truck1.turt = t1
+    Truck1.turt_text = t1_text
+
+    t2 = turtle.Turtle()
+    t2_text = turtle.Turtle()
+    Truck2.turt = t2
+    Truck2.turt_text = t2_text
+
+    t3 = turtle.Turtle()
+    t3_text = turtle.Turtle()
+    Truck3.turt = t3
+    Truck3.turt_text = t3_text
+
+    t4 = turtle.Turtle()
+    t4_text = turtle.Turtle()
+    Truck4.turt = t4
+    Truck4.turt_text = t4_text
+
+    t5 = turtle.Turtle()
+    t5_text = turtle.Turtle()
+    Truck5.turt = t5
+    Truck5.turt_text = t5_text
+
     # create a screen object
     screen = turtle.Screen()
     # set the background image
-    screen.bgpic("C:\\Users\\kjpre\\PycharmProjects\\DES-Project-SP23\\Map_model\\diagram.png")
+    theme_pref = input("D for dark mode or L for light")
+    if theme_pref == 'D' or theme_pref == 'd':
+        screen.bgpic("diagram_DARK.png")
+
+        #screen.bgpic("C:\\Users\\kjpre\\PycharmProjects\\DES-Project-SP23\\Map_model\\diagram_DARK.png")
+        theme_pref = "yellow"
+    elif theme_pref == 'L'or theme_pref == 'l':
+        screen.bgpic("diagram_LIGHT.png")
+        theme_pref = "green"
     screen.title("Road Network, Subvectio MN")
 
     level = 0
@@ -343,17 +423,40 @@ def dict_looper(nested_dict):
         t4_text.clear()
         t5_text.clear()
 
-        print(f"{level} at {nested_dict[level].items()}")
-        for i in truck_list:
-            turtle_commander(i, nested_dict[level].get(f"{i.name}"))
+        t1.color(theme_pref)
+        t2.color(theme_pref)
+        t3.color(theme_pref)
+        t4.color(theme_pref)
+        t5.color(theme_pref)
 
-        turtle.update()
+        t1_text.color(theme_pref)
+        t1_text.ht()
+        t2_text.color(theme_pref)
+        t2_text.ht()
+        t3_text.color(theme_pref)
+        t3_text.ht()
+        t4_text.color(theme_pref)
+        t4_text.ht()
+        t5_text.color(theme_pref)
+        t5_text.ht()
+
+
+
+        print(f"{level} at {nested_dict[level].items()}")
         user_input = input("enter continue, '\\' back")
+
         if user_input == '\\':
+            for i in truck_list:
+                turtle_commander(i, nested_dict[level].get(f"{i.name}"), 'backward')
+            turtle.update()
             level -= 1
         else:
+            for i in truck_list:
+                turtle_commander(i, nested_dict[level].get(f"{i.name}"), 'forward')
+            turtle.update()
             level += 1
 
+global_node_list = [] # Every road network object is added here as soon as they are instantiated
 
 # Highway instantiation (2 highways)
 hwy1 = Highway('highway1', [], 45)
@@ -414,46 +517,20 @@ road6.connections += [endpoint7, intersection7, intersection8, offRamp1]
 hwy1.connections += [endpoint10, offRamp2, highwayIntersection1, offRamp1, onRamp1, endpoint12]
 hwy2.connections += [endpoint11, onRamp2, offRamp3, highwayIntersection1, endpoint13]
 
-t1 = turtle.Turtle()
-t1.pencolor("red")
-t1_text = turtle.Turtle()
-t1_text.ht()
 
-t2 = turtle.Turtle()
-t2.pencolor("blue")
-t2_text = turtle.Turtle()
-t2_text.ht()
 
-t3 = turtle.Turtle()
-t3.pencolor("green")
-t3_text = turtle.Turtle()
-t3_text.ht()
-
-t4 = turtle.Turtle()
-t4.pencolor("purple")
-t4_text = turtle.Turtle()
-t4_text.ht()
-
-t5 = turtle.Turtle()
-t5_text = turtle.Turtle()
-t5_text.ht()
-
-stored_turtles = []
-stored_turtles.append(t1)
-stored_turtles.append(t2)
-stored_turtles.append(t3)
-stored_turtles.append(t4)
-stored_turtles.append(t5)
 
 env.process(second_key_maker(env))
 # Have this before truck objects to ensure it runs first
 
-#  def __init__(self, env, name, occupants, start_from, previous_location, travel_next, finish_at, gps):
-Truck1 = Truck(env, 'Truck1', 2, endpoint3, [], [], endpoint9, t1, t1_text)
-Truck2 = Truck(env, 'Truck2', 2, endpoint3, [], [], endpoint9, t2, t2_text)
-Truck3 = Truck(env, 'Truck3', 2, endpoint3, [], [], endpoint9, t3, t3_text)
-Truck4 = Truck(env, 'Truck4', 2, endpoint3, [], [], endpoint9, t4, t4_text)
-Truck5 = Truck(env, 'Truck5', 2, endpoint3, [], [], endpoint9, t5, t5_text)
+#def __init__(self, env, name, occupants, start_from, previous_location, travel_next, finish_at, turt, turt_text, idle_rate, mpg, weight, truck_state)
+Truck1 = Truck(env, 'Truck1', 2, endpoint3, [], [], endpoint9, '', '', 0.000055556, 27, 100, '', 120)
+Truck2 = Truck(env, 'Truck2', 2, endpoint3, [], [], endpoint9, '', '', 0.000055556, 27, 100, '', 120)
+Truck3 = Truck(env, 'Truck3', 2, endpoint3, [], [], endpoint9, '', '', 0.000055556, 27, 100, '', 120)
+Truck4 = Truck(env, 'Truck4', 2, endpoint3, [], [], endpoint9, '', '', 0.000055556, 27, 100, '', 120)
+Truck5 = Truck(env, 'Truck5', 2, endpoint3, [], [], endpoint9, '', '', 0.000055556, 27, 100, '', 120)
+
+
 
 truck_list = []
 truck_list.append(Truck1)
@@ -469,6 +546,7 @@ process_locations_per_second = {}
 
 
 
+
 if __name__ == '__main__':  # Main guard, prevents running sim on module import to unittest tester.py
 
     sim_time = 3600
@@ -478,9 +556,16 @@ if __name__ == '__main__':  # Main guard, prevents running sim on module import 
 
     global_print(finished_trucks, truck_resource_times, interaction_alert)
 
-    #pprint.pprint(process_locations_per_second)
+    for i in truck_list:
+        print(f"{i.name} with fuel {i.fuel}")
 
-    #dict_looper(process_locations_per_second)
+
+    #pprint.pprint(process_locations_per_second)
+    visual_pref = input("Start visualization? y/n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")  # I hate scrolling
+    if visual_pref == 'y':
+        dict_looper(process_locations_per_second)
+    else:
+        pass
 
 
 

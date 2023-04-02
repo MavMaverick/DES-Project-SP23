@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ad020c54-00c1-492b-85b6-6273c18de125" name="Changes" comment="" />
+    <list default="true" id="ad020c54-00c1-492b-85b6-6273c18de125" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Map_model/diagram_DARK.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Map_model/diagram_LIGHT.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Map_model/cityModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/Map_model/cityModel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Map_model/diagram.png" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -23,7 +29,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="Map_modeling" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -142,7 +148,14 @@
       <option name="project" value="LOCAL" />
       <updated>1680100586290</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Visualizer currently works, road network created and working, moving onto other deliverables and merging mapModeling back into main to open a new branch.">
+      <created>1680101246052</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1680101246052</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -167,6 +180,7 @@
     <MESSAGE value="Cleaned up code in cityModel.py, removed turtle visualizer until it can be fixed appropriately. Renamed absoluTester.py to tester.py." />
     <MESSAGE value="Working visualization for the discrete simulator.&#10;Issues:&#10;Currently the turtles do not accurately represent the heading of their direction (they don't point where they're going and they don't point in the direction they were going if you go back in time). This could be fixed by using turtle.headingto(location) which will point the turtle in the direction of a coordinate, turtle.setpos() only moves a turtle and does not orient the turtle to the coordinate it is being moved to. &#10;&#10;Despite being explicitly told to have color, all l turtles have turned back to black for some reason after initially having color. This error was caught later and the exact cause is not known yet.  &#10;&#10;There is an issue with the turtle graphics window freezing for 5 seconds at the start of the simulation where it cannot be interacted with. &#10;&#10;A coordinate conversion function is needed to be able to map the turtle to the background diagram, if this could be solved by sending the turtle origin to the diagram origin, the code could be much simpler. &#10;&#10;Turtle.clear() within coordinate_crawl method needs to be fixed as it accidentally clears text of turtles texts that are attached to turtle trucks that are not moving. Turtle trucks that have finished end up being displayed with no name.  &#10;&#10;All turtles could be enlarged for visibility. &#10;&#10;Turtle name text sometimes overlaps. &#10;&#10;Visualizer does not work on other devices, need to fix the root path for turtle.scrbackground() so it runs without needing to change the path of the road network diagram." />
     <MESSAGE value="Visualizer currently works, moving onto other deliverables and merging this back into main to open a new branch.&#10;&#10;Issues: Visualizer&#10;- Turtle window stays open while running DES, unable to interactt with for 5 seconds when dict_loop() called.&#10;Issues: DES&#10;- Truck methods do not use all of the attibutes, some are not used correctly or too obtusely)&#10;&#10;1. Removed 'gps' attribute from Truck, unused." />
-    <option name="LAST_COMMIT_MESSAGE" value="Visualizer currently works, moving onto other deliverables and merging this back into main to open a new branch.&#10;&#10;Issues: Visualizer&#10;- Turtle window stays open while running DES, unable to interactt with for 5 seconds when dict_loop() called.&#10;Issues: DES&#10;- Truck methods do not use all of the attibutes, some are not used correctly or too obtusely)&#10;&#10;1. Removed 'gps' attribute from Truck, unused." />
+    <MESSAGE value="Visualizer currently works, road network created and working, moving onto other deliverables and merging mapModeling back into main to open a new branch." />
+    <option name="LAST_COMMIT_MESSAGE" value="Visualizer currently works, road network created and working, moving onto other deliverables and merging mapModeling back into main to open a new branch." />
   </component>
 </project>
