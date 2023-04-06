@@ -5,11 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ad020c54-00c1-492b-85b6-6273c18de125" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Map_model/diagram_DARK.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Map_model/diagram_LIGHT.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Map_model/cityModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/Map_model/cityModel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Map_model/diagram.png" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,19 +52,48 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/kjpre/PycharmProjects/DES-Project-SP23&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;aDefault&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.ide.settings.new.ui&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "full.screen.before.presentation.mode": "false",
+    "last_opened_file_path": "C:/Users/kjpre/PycharmProjects/DES-Project-SP23",
+    "run.code.analysis.last.selected.profile": "aDefault",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\kjpre\PycharmProjects\DES-Project-SP23\Map_model" />
     </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="TESTING" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="DES-Project-SP23" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Map_model" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Map_model/TESTING.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.TESTING" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -155,7 +181,14 @@
       <option name="project" value="LOCAL" />
       <updated>1680101246052</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Other major changes: &#10;&#10;- Visualizer asks if it wants to be run before displaying turtle screen (no turtle code executed until needed) &#10;- Light and Dark theme added, user can choose via input. &#10;- Turtle color issue fixed, culprit was clear() causing turtle values like color to be reset (clear is needed to re-display turtle written text in new places as the text is not able to move because it is a part of the canvas not the turtle, so it MUST be deleted using clear() and then redisplayed.) &#10;- Truck text size increased, heading added showing direction traveling. &#10;- New branch for algorithm work, previous branch merged and closed. &#10;- Appending road network nodes to global list now occurs at object instantiation &#10;&#10;Known Issues: &#10;&#10;1. Turtle window still freezes for 5 seconds when attempting to move it via cursor. &#10;2. Moving backwards a step moves forward a step (???) before finally moving backwards every time after &#10;3. Turtles do NOT point at the next coordinate in the future when stepping back through time, they point in the direction of the last place they were heading towards no matter how far back you travel into the past. &#10;4. Problems displaying completely stopped ‘finished’ turtles.  &#10;5. Truck subclasses need to be added back, with distinct turtle coloring to differentiate. &#10;6. Truck class needs cleaning, not all attributes used/ used correctly (looking at you, next_location and previous_location)">
+      <created>1680408978882</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1680408978882</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -181,6 +214,7 @@
     <MESSAGE value="Working visualization for the discrete simulator.&#10;Issues:&#10;Currently the turtles do not accurately represent the heading of their direction (they don't point where they're going and they don't point in the direction they were going if you go back in time). This could be fixed by using turtle.headingto(location) which will point the turtle in the direction of a coordinate, turtle.setpos() only moves a turtle and does not orient the turtle to the coordinate it is being moved to. &#10;&#10;Despite being explicitly told to have color, all l turtles have turned back to black for some reason after initially having color. This error was caught later and the exact cause is not known yet.  &#10;&#10;There is an issue with the turtle graphics window freezing for 5 seconds at the start of the simulation where it cannot be interacted with. &#10;&#10;A coordinate conversion function is needed to be able to map the turtle to the background diagram, if this could be solved by sending the turtle origin to the diagram origin, the code could be much simpler. &#10;&#10;Turtle.clear() within coordinate_crawl method needs to be fixed as it accidentally clears text of turtles texts that are attached to turtle trucks that are not moving. Turtle trucks that have finished end up being displayed with no name.  &#10;&#10;All turtles could be enlarged for visibility. &#10;&#10;Turtle name text sometimes overlaps. &#10;&#10;Visualizer does not work on other devices, need to fix the root path for turtle.scrbackground() so it runs without needing to change the path of the road network diagram." />
     <MESSAGE value="Visualizer currently works, moving onto other deliverables and merging this back into main to open a new branch.&#10;&#10;Issues: Visualizer&#10;- Turtle window stays open while running DES, unable to interactt with for 5 seconds when dict_loop() called.&#10;Issues: DES&#10;- Truck methods do not use all of the attibutes, some are not used correctly or too obtusely)&#10;&#10;1. Removed 'gps' attribute from Truck, unused." />
     <MESSAGE value="Visualizer currently works, road network created and working, moving onto other deliverables and merging mapModeling back into main to open a new branch." />
-    <option name="LAST_COMMIT_MESSAGE" value="Visualizer currently works, road network created and working, moving onto other deliverables and merging mapModeling back into main to open a new branch." />
+    <MESSAGE value="Other major changes: &#10;&#10;- Visualizer asks if it wants to be run before displaying turtle screen (no turtle code executed until needed) &#10;- Light and Dark theme added, user can choose via input. &#10;- Turtle color issue fixed, culprit was clear() causing turtle values like color to be reset (clear is needed to re-display turtle written text in new places as the text is not able to move because it is a part of the canvas not the turtle, so it MUST be deleted using clear() and then redisplayed.) &#10;- Truck text size increased, heading added showing direction traveling. &#10;- New branch for algorithm work, previous branch merged and closed. &#10;- Appending road network nodes to global list now occurs at object instantiation &#10;&#10;Known Issues: &#10;&#10;1. Turtle window still freezes for 5 seconds when attempting to move it via cursor. &#10;2. Moving backwards a step moves forward a step (???) before finally moving backwards every time after &#10;3. Turtles do NOT point at the next coordinate in the future when stepping back through time, they point in the direction of the last place they were heading towards no matter how far back you travel into the past. &#10;4. Problems displaying completely stopped ‘finished’ turtles.  &#10;5. Truck subclasses need to be added back, with distinct turtle coloring to differentiate. &#10;6. Truck class needs cleaning, not all attributes used/ used correctly (looking at you, next_location and previous_location)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Other major changes: &#10;&#10;- Visualizer asks if it wants to be run before displaying turtle screen (no turtle code executed until needed) &#10;- Light and Dark theme added, user can choose via input. &#10;- Turtle color issue fixed, culprit was clear() causing turtle values like color to be reset (clear is needed to re-display turtle written text in new places as the text is not able to move because it is a part of the canvas not the turtle, so it MUST be deleted using clear() and then redisplayed.) &#10;- Truck text size increased, heading added showing direction traveling. &#10;- New branch for algorithm work, previous branch merged and closed. &#10;- Appending road network nodes to global list now occurs at object instantiation &#10;&#10;Known Issues: &#10;&#10;1. Turtle window still freezes for 5 seconds when attempting to move it via cursor. &#10;2. Moving backwards a step moves forward a step (???) before finally moving backwards every time after &#10;3. Turtles do NOT point at the next coordinate in the future when stepping back through time, they point in the direction of the last place they were heading towards no matter how far back you travel into the past. &#10;4. Problems displaying completely stopped ‘finished’ turtles.  &#10;5. Truck subclasses need to be added back, with distinct turtle coloring to differentiate. &#10;6. Truck class needs cleaning, not all attributes used/ used correctly (looking at you, next_location and previous_location)" />
   </component>
 </project>

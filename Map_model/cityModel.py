@@ -1,9 +1,17 @@
 import random
 # For random.choice() which allows random choices from a list
 import simpy
-# import simpy for discrete simulation use
+#  For running a discrete simulation
 import pprint
+#  For pretty printing of the graph global dictionary
 import turtle
+#  For turtle graphics
+import pickle
+#  For storing and accessing graph data
+import networkx as nx
+#  For
+import time
+#  For the visualization loop per second
 
 
 env = simpy.Environment()
@@ -269,6 +277,98 @@ class Truck:
         print(f"Releasing employee")
 
 
+graph = {}
+def append_graph(node, next, speed):
+    print(node, next)
+    d = distance(node, next)
+    print(d)
+    seconds, t = travel_time(d[1], speed)
+    weight = seconds
+
+    graph[node.name].update({next.name: weight})
+    print(f"{d} miles between {node.name} and {next.name} at speed {speed} , weight {weight} ")
+    key = node.name
+    print(f"\033[34m'{key}': {graph[node.name]}\033[0m")
+
+def graph_start(global_list):
+    global graph
+    inputer = input(f"\033[32mUse graph functions?\033[0m y / n  ")  # Exit this funct if no
+    if inputer == 'y' or inputer == 'Y':
+        choice = input("\033[32mCreate new graph.pkl?\033[0m  yes / n  ")  # Create and save
+        if choice == 'yes' or choice == 'YES':
+            graph_make(global_list)
+            with open("graph.pkl", "wb") as f:
+                pickle.dump(graph, f)
+            print("graph.pkl generation complete, check Map_Model\\graph.pk")
+
+        user_choice = input("\033[32mVisualize graph generation WITHOUT saving?\033[0m y / n  ")  # Show generation only
+        if user_choice == 'y' or user_choice == 'Y':
+            graph_make(global_list)
+            print("GRAPH NOT SAVED")
+
+        choice = input("\033[32mpprint the existing graph.pkl?\033[0m  y / n  ")  # pprint existing saved graph
+        if choice == 'y' or choice == 'Y':
+            with open("graph.pkl", "rb") as f:
+                graph = pickle.load(f)
+            pprint.pprint(graph)
+
+        choice = input("\033[32m Run networkx?\033[0m  y / n  ")
+        if choice == 'y' or choice == 'Y':
+            with open("graph.pkl", "rb") as f:
+                graph = pickle.load(f)
+            G = nx.from_dict_of_lists(graph)
+            path = nx.shortest_path(G, source='endpoint3', target='endpoint9', weight='weight')
+            print(path)
+
+    else:
+        pass
+
+def graph_make(global_list):
+    for node in global_list:
+        graph.update({node.name: {}})
+
+    for node in global_list:
+        destinations =[]
+        # def __init__(self, name, pos, connections
+        print(f"\033[31m{node.name}\033[0m")
+        for parent in node.connections:
+            #  Check all 'parent' roads of this node (1 or 2, never 0)
+            parent_index = node.connections.index(parent)
+            #  Passes index of current parent road
+            current_parent_road = node.connections[parent_index]
+            print(f"[Operation {parent_index + 1}/{len(node.connections)}]")
+            print(f"Generating connections from [{node.name}], parent {current_parent_road.name}")
+
+            print(end=f"{current_parent_road.name}: [")
+            for location in current_parent_road.connections:
+                if location == node:
+                    print(f"\033[32m{location.name}\033[0m", end=", ")
+
+                else:
+                    print(location.name, end=", ")
+            print(end="]\n")
+
+            node_index_within_parent = current_parent_road.connections.index(node)
+
+            if node_index_within_parent < len(current_parent_road.connections) - 1:
+                # Next potential locale becomes next_place
+                next_place = current_parent_road.connections[node_index_within_parent + 1]
+                print(f"    ! Right index is {next_place.name}")
+                print(f"    + Appending right index {next_place.name}")
+                destinations.append(next_place)  # add next_place to11
+                append_graph(node, next_place, current_parent_road.speed)
+            else:
+                print("    ? There is no right index")
+            if node_index_within_parent > 0:  # # Check if objects before current index
+                next_place = current_parent_road.connections[node_index_within_parent - 1]
+                print(f"    ! Left index is {next_place.name}")
+                print(f"    + Appending left index {next_place.name}")
+                destinations.append(next_place)
+                append_graph(node, next_place, current_parent_road.speed)
+            else:
+                print("    ? There is no left index")
+            print("\n")
+
 def fuel_consumption_per_second(speed, mpg):
     fuel_consumption = (speed / mpg) / 3600
     return fuel_consumption
@@ -350,11 +450,13 @@ def global_print(global1, global2, global3):
         print(i)
 
 
-def turtle_commander(truck, truck_data, direction):
+def turtle_commander(truck, truck_data, direction, theme_pref):
     font = ("Arial", 13, "normal")
     t = truck.turt
     ttex = truck.turt_text
     if truck_data == None:
+        t.color('red')
+        ttex.color('red')
         return
     elif direction == 'backward':
         t.setpos(truck_data[0])
@@ -365,6 +467,10 @@ def turtle_commander(truck, truck_data, direction):
         angle = t.towards(truck_data[0])
         t.setheading(angle)
         t.setpos(truck_data[0])
+        ttex.clear()
+        t.color(theme_pref)
+        ttex.color(theme_pref)
+        ttex.ht()
         ttex.setpos(truck.turt.position())
         ttex.write(f"{truck.name}\n fuel {round(truck_data[1], 3)}", font=font)
 
@@ -403,58 +509,49 @@ def dict_looper(nested_dict):
     # create a screen object
     screen = turtle.Screen()
     # set the background image
-    theme_pref = input("D for dark mode or L for light")
+    theme_pref = input("\033[34mChoose Dark or Light theme\033[0m d / l  ")
     if theme_pref == 'D' or theme_pref == 'd':
         screen.bgpic("diagram_DARK.png")
+        turtle.update()
 
         #screen.bgpic("C:\\Users\\kjpre\\PycharmProjects\\DES-Project-SP23\\Map_model\\diagram_DARK.png")
         theme_pref = "yellow"
     elif theme_pref == 'L'or theme_pref == 'l':
         screen.bgpic("diagram_LIGHT.png")
+        turtle.update()
         theme_pref = "green"
     screen.title("Road Network, Subvectio MN")
 
     level = 0
-
-    while True:
-        t1_text.clear()
-        t2_text.clear()
-        t3_text.clear()
-        t4_text.clear()
-        t5_text.clear()
-
-        t1.color(theme_pref)
-        t2.color(theme_pref)
-        t3.color(theme_pref)
-        t4.color(theme_pref)
-        t5.color(theme_pref)
-
-        t1_text.color(theme_pref)
-        t1_text.ht()
-        t2_text.color(theme_pref)
-        t2_text.ht()
-        t3_text.color(theme_pref)
-        t3_text.ht()
-        t4_text.color(theme_pref)
-        t4_text.ht()
-        t5_text.color(theme_pref)
-        t5_text.ht()
-
-
-
-        print(f"{level} at {nested_dict[level].items()}")
-        user_input = input("enter continue, '\\' back")
-
-        if user_input == '\\':
+    auto_run = input("Run visualization as loop? y / n  ")
+    if auto_run == 'y' or auto_run == 'Y':
+        input("Begin? any key-")
+        while True:
+            print(f"{convert_seconds(level)} at {nested_dict[level].items()}")
+            time.sleep(.25)
             for i in truck_list:
-                turtle_commander(i, nested_dict[level].get(f"{i.name}"), 'backward')
-            turtle.update()
-            level -= 1
-        else:
-            for i in truck_list:
-                turtle_commander(i, nested_dict[level].get(f"{i.name}"), 'forward')
+                turtle_commander(i, nested_dict[level].get(f"{i.name}"), 'forward', theme_pref)
             turtle.update()
             level += 1
+
+    else:
+        while True:
+            print(f"{level} at {nested_dict[level].items()}")
+            user_input = input("enter continue, '\\' back")
+
+            if user_input == '\\':
+                for i in truck_list:
+                    turtle_commander(i, nested_dict[level].get(f"{i.name}"), 'backward', theme_pref)
+                turtle.update()
+                level -= 1
+            else:
+                for i in truck_list:
+                    turtle_commander(i, nested_dict[level].get(f"{i.name}"), 'forward', theme_pref)
+                turtle.update()
+                level += 1
+
+
+
 
 global_node_list = [] # Every road network object is added here as soon as they are instantiated
 
@@ -547,25 +644,38 @@ process_locations_per_second = {}
 
 
 
+
+
 if __name__ == '__main__':  # Main guard, prevents running sim on module import to unittest tester.py
 
     sim_time = 3600
     employees = simpy.Resource(env, capacity=20)
-    env.run(until=sim_time)
-    print("\n\n")
 
-    global_print(finished_trucks, truck_resource_times, interaction_alert)
-
-    for i in truck_list:
-        print(f"{i.name} with fuel {i.fuel}")
-
-
-    #pprint.pprint(process_locations_per_second)
-    visual_pref = input("Start visualization? y/n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")  # I hate scrolling
-    if visual_pref == 'y':
-        dict_looper(process_locations_per_second)
-    else:
-        pass
+    print("Localgists ShippingTM (LGS) 2023\n\n"
+          "Discrete Event Simulator for Delivery truck operation, follow on-screen prompts to begin.\n"
+          "- Version 1.1.1\n")
+    choice = input("\033[34m Run DES?\033[0m y / n  ")
+    if choice == 'y' or choice == 'Y':
+        env.run(until=sim_time)
+        print("\n\n")
+        global_print(finished_trucks, truck_resource_times, interaction_alert)
+        for i in truck_list:
+            print(f"{i.name} with fuel {i.fuel}")
+        print("\n")
 
 
+        #pprint.pprint(process_locations_per_second)
+        visual_pref = input("\033[34mStart visualization?\033[0m y/n\n\n")  # I hate scrolling
+        if visual_pref == 'y' or visual_pref == 'Y':
+            dict_looper(process_locations_per_second)
+        else:
+            pass
 
+    graph_start(global_node_list)
+
+# ['endpoint3', 'intersection2', 'intersection1', 'intersection4', 'intersection6', 'intersection7', 'endpoint8']
+#             245               259               864             577              346              158
+#245 + 259 + 864 + 577 + 346 + 158 = 2,449
+#   endpoint3          inter2       inter1          onramp1             offramp1        int8            int7        endpoint8
+#             245               259          822                74                432            158         158
+#245 + 259 + 822 + 74 + 432 + 158 + 158 = 2,148
