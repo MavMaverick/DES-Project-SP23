@@ -319,6 +319,8 @@ def graph_start(global_list):
             G = nx.from_dict_of_lists(graph)
             path = nx.shortest_path(G, source='endpoint3', target='endpoint9', weight='weight')
             print(path)
+            path_list = [globals()[p] for p in path]
+            print(path_list)
 
     else:
         pass
