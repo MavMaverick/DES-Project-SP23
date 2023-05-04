@@ -9,7 +9,7 @@ import turtle
 import pickle
 #  For storing and accessing graph data
 import networkx as nx
-#  For
+#  For using dijkstra's algorithm to find the shortest path with the saved weighted pickle graph
 import time
 #  For the visualization loop per second
 
@@ -480,7 +480,11 @@ def turtle_commander(truck, truck_data, direction, theme_pref):
 
 
 def dict_looper(nested_dict):
+    # This function allows you to loop though the nested dictionary containing the history of all truck movements.
     turtle.tracer(0)
+    # Setting tracer to zero is ABSOLUTELY NECESSARY to ensure that turtles only manually update all at once
+    # Otherwise turtles will update one-after-the-other. With trace zero, turtle movement is hidden and takes 0 time
+    # By updating all turtle pos in one second, we accurately depict their movements in discrete time
     turtle.setworldcoordinates(-20, -20, 20, 20)
 
     t1 = turtle.Turtle()
@@ -516,7 +520,7 @@ def dict_looper(nested_dict):
         screen.bgpic("diagram_DARK.png")
         turtle.update()
 
-        #screen.bgpic("C:\\Users\\kjpre\\PycharmProjects\\DES-Project-SP23\\Map_model\\diagram_DARK.png")
+        #screen.bgpic("C:\\Users\\kjpre\\PycharmProjects\\DES-Project-SP23\\Discrete_Traffic_Event_Simulator\\diagram_DARK.png")
         theme_pref = "yellow"
     elif theme_pref == 'L'or theme_pref == 'l':
         screen.bgpic("diagram_LIGHT.png")
@@ -662,6 +666,7 @@ if __name__ == '__main__':  # Main guard, prevents running sim on module import 
         print("\n\n")
         global_print(finished_trucks, truck_resource_times, interaction_alert)
         for i in truck_list:
+            ''
             print(f"{i.name} with fuel {i.fuel}")
         print("\n")
 
@@ -675,9 +680,3 @@ if __name__ == '__main__':  # Main guard, prevents running sim on module import 
 
     graph_start(global_node_list)
 
-# ['endpoint3', 'intersection2', 'intersection1', 'intersection4', 'intersection6', 'intersection7', 'endpoint8']
-#             245               259               864             577              346              158
-#245 + 259 + 864 + 577 + 346 + 158 = 2,449
-#   endpoint3          inter2       inter1          onramp1             offramp1        int8            int7        endpoint8
-#             245               259          822                74                432            158         158
-#245 + 259 + 822 + 74 + 432 + 158 + 158 = 2,148
