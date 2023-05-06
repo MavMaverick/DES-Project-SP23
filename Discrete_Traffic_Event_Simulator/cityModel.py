@@ -103,7 +103,6 @@ class Truck:
         self.truck_state = truck_state
         self.fuel = fuel
 
-
         self.action = env.process(self.run())
 
     def enqueue(self):
@@ -131,76 +130,43 @@ class Truck:
     def traverse(self):
         global finished_trucks
         trip_count = 0
+        count = 0
         # Loop until destination arrived at
+
+        with open("graph.pkl", "rb") as f:
+            graph = pickle.load(f)
+        G = nx.from_dict_of_lists(graph)
+        path = nx.shortest_path(G, source=self.start_from.name, target=self.finish_at.name, weight='weight')
+        print(path)
+        path_list = [globals()[p] for p in path]
+        #print(path_list)
+
         while True:
             destinations = []  # Holds choices generated below
-            print(f"\n{self.name}")
+            print(f"{self.name}")
             print(f"{self.name} Preparing to move from {self.start_from.name}")
-            for i in self.start_from.connections:
-                # Passes current location's parent road index to curr_indexroad
-                current_index = self.start_from.connections.index(i)
-                # passes current i of current_parent_road
-                current_parent_road = self.start_from.connections[current_index]
-                print(f"[{current_index + 1}/{len(self.start_from.connections)}]")
-                # Current road
-                print(f"Generating travel options from "
-                      f"{self.start_from.name}'s {current_parent_road.name} parent connection")
 
-                print(end=f"{current_parent_road.name}: [")
-                for location in current_parent_road.connections:
-                    print(location.name, end=", ")
-                print(end="]")
-                curr_road_index = current_parent_road.connections.index(self.start_from)
+            shared_road = set(path_list[count].connections).intersection(path_list[count+1].connections)
+            # set doesn't support index element accessing, you need to loop
+            for i in shared_road:
+                shared_road = i
 
-                print(f"\nChecking closest travel options for {self.start_from.name},"
-                      f" currently index [{curr_road_index}] in its parent {current_parent_road.name}")
-                # Check if objects after current index
-                if curr_road_index < len(current_parent_road.connections) - 1:
-                    # Next potential locale becomes next_place
-                    next_place = current_parent_road.connections[curr_road_index + 1]
-                    print(f"    ! Right index is {next_place.name}")
-
-                    # if next is same as last place and endpoint, no
-                    if next_place == self.previous_location and isinstance(next_place, EndPoint):
-                        print(f"    ! {next_place.name} was the last place, not appending")
-                    else:
-                        print(f"    + Appending right index {next_place.name}")
-                        destinations.append(next_place)  # add next_place to11
-                        print(current_parent_road.speed)
-                else:
-                    print("     ? There is no right index")
-                if curr_road_index > 0:  # # Check if objects before current index
-                    next_place = current_parent_road.connections[curr_road_index - 1]
-                    print(f"    ! Left index is {next_place.name}")
-
-                    if next_place == self.previous_location and isinstance(next_place, EndPoint):
-                        print(f"    ! {next_place.name} was the last place, not appending")
-                        pass
-                    else:
-                        print(f"    + Appending left index {next_place.name}")
-                        destinations.append(next_place)
-                        print(current_parent_road.speed)
-                else:
-                    print("     ? There is no left index")
-
-            print(end=f"Places that {self.name} can travel to: ")
-            for i in destinations:
-                print(f"{i.name}", end=', ')
-
-            random_choice = random.choice(destinations)
-            self.travel_next = random_choice
-            self.previous_location = self.start_from
-            self.start_from = random_choice
+            count += 1
+            self.travel_next = path_list[count]
+            self.previous_location = path_list[count-1]
+            self.start_from = path_list[count]
             trip_count += 1
 
-            print(f"\n{self.name} randomly picks {random_choice.name}")
+            print(f"\n{self.name} picks {path_list[count].name}")
             miles_between, coord_distance = distance(self.previous_location, self.start_from)
-            trip_length, trip_speed = travel_time(miles_between, current_parent_road.speed)
-            print(current_parent_road.speed)
+
+
+            trip_length, trip_speed = travel_time(miles_between, shared_road.speed)
+            print(shared_road.speed)
             print(f"Trip expected to last {trip_length} seconds at {trip_speed}mph")
 
             yield env.process(self.coordinate_crawl(coord_distance, trip_length, trip_speed))
-            #yield env.timeout(trip_length)
+            # yield env.timeout(trip_length)
             yield env.process(self.enqueue())
             print(f"{trip_count} movements, current time {env.now}")
 
@@ -279,14 +245,14 @@ class Truck:
 
 graph = {}
 def append_graph(node, next, speed):
-    print(node, next)
-    d = distance(node, next)
-    print(d)
-    seconds, t = travel_time(d[1], speed)
+    print(node.name, next.name)
+    miles, dist = distance(node, next)
+    print(f"{miles} miles")
+    seconds, t = travel_time(miles, speed)
     weight = seconds
 
     graph[node.name].update({next.name: weight})
-    print(f"{d} miles between {node.name} and {next.name} at speed {speed} , weight {weight} ")
+    print(f"{miles} miles between {node.name} and {next.name} at speed {speed} , weight {weight} ")
     key = node.name
     print(f"\033[34m'{key}': {graph[node.name]}\033[0m")
 
@@ -324,6 +290,36 @@ def graph_start(global_list):
 
     else:
         pass
+def weight_check():
+    # Manually check distances and weight between nodes (time)
+    inputer = input(f"\033[31mUse distance and speed functions?\033[0m y / n  ")  # Exit this funct if no
+    if inputer == 'y' or inputer == 'Y':
+        while True:
+            # get the names of the road-network objects
+            locale1 = input("Enter place 1 name exactly:")
+            locale2 = input("Enter place 2 name exactly:")
+            # convert string to object pointers
+            locale1 = globals()[locale1]
+            locale2 = globals()[locale2]
+            miles, dist = distance(locale1, locale2)
+            for i in locale1.connections:
+                print(f"    {locale2.name} connections:", i.name)
+            for i in locale1.connections:
+                print(f"    {locale1.name} connections:", i.name)
+            shared_road = set(locale1.connections).intersection(locale2.connections)
+
+            # set doesn't support index element accessing, you need to loop
+            for i in shared_road:
+                shared_road = i
+            print(f"    {locale1.name} and {locale2.name} share the road {shared_road.name}")
+            print(f"{shared_road.speed} is the speed limit of {shared_road.name}")
+            print(f"Distance between {locale1.name} and {locale2.name} is {miles} miles")   
+            # time = distance / speed
+            weight, speed = travel_time(miles, shared_road.speed)
+            print(f"The time (weight) to travel from {locale1.name} to {locale2.name} is {weight} seconds (rounded)")
+            print("\n")
+        pass
+
 
 def graph_make(global_list):
     for node in global_list:
@@ -358,7 +354,11 @@ def graph_make(global_list):
                 print(f"    ! Right index is {next_place.name}")
                 print(f"    + Appending right index {next_place.name}")
                 destinations.append(next_place)  # add next_place to11
-                append_graph(node, next_place, current_parent_road.speed)
+                shared_road = set(node.connections).intersection(next_place.connections)
+                # set doesn't support index element accessing, you need to loop
+                for i in shared_road:
+                    shared_road = i
+                append_graph(node, next_place, shared_road.speed)
             else:
                 print("    ? There is no right index")
             if node_index_within_parent > 0:  # # Check if objects before current index
@@ -366,7 +366,11 @@ def graph_make(global_list):
                 print(f"    ! Left index is {next_place.name}")
                 print(f"    + Appending left index {next_place.name}")
                 destinations.append(next_place)
-                append_graph(node, next_place, current_parent_road.speed)
+                shared_road = set(node.connections).intersection(next_place.connections)
+                # set doesn't support index element accessing, you need to loop
+                for i in shared_road:
+                    shared_road = i
+                append_graph(node, next_place, shared_road.speed)
             else:
                 print("    ? There is no left index")
             print("\n")
@@ -403,7 +407,6 @@ def distance(location1, location2):
     feet = dist * feet_per_increment
     # feet converted to miles, rounded to 2 places
     miles = round(feet * 0.0001894, 2)
-    print(f"{miles} miles between {location1.name} and {location2.name}")
     return miles, dist
 
 
@@ -566,7 +569,7 @@ hwy1 = Highway('highway1', [], 45)
 hwy2 = Highway('highway2', [], 45)
 
 # Highway Intersection instantiation (1 hwy intersect)
-highwayIntersection1 = HwyIntersection("Hw1_Hw2", (10.5, 14.4), [hwy1, hwy2], 1)
+Hw1_Hw2 = HwyIntersection("Hw1_Hw2", (10.5, 14.4), [hwy1, hwy2], 1)
 
 # Road instantiation (6 roads)
 road1 = Road('road1', [], 25)
@@ -617,8 +620,8 @@ road5.connections += [endpoint5, intersection5, offRamp3, onRamp2, intersection6
 road6.connections += [endpoint7, intersection7, intersection8, offRamp1]
 
 #  circular dependency, append objects to highways to prevent error
-hwy1.connections += [endpoint10, offRamp2, highwayIntersection1, offRamp1, onRamp1, endpoint12]
-hwy2.connections += [endpoint11, onRamp2, offRamp3, highwayIntersection1, endpoint13]
+hwy1.connections += [endpoint10, offRamp2, Hw1_Hw2, offRamp1, onRamp1, endpoint12]
+hwy2.connections += [endpoint11, onRamp2, offRamp3, Hw1_Hw2, endpoint13]
 
 
 
@@ -629,8 +632,8 @@ env.process(second_key_maker(env))
 #def __init__(self, env, name, occupants, start_from, previous_location, travel_next, finish_at, turt, turt_text, idle_rate, mpg, weight, truck_state)
 Truck1 = Truck(env, 'Truck1', 2, endpoint3, [], [], endpoint9, '', '', 0.000055556, 27, 100, '', 120)
 Truck2 = Truck(env, 'Truck2', 2, endpoint3, [], [], endpoint9, '', '', 0.000055556, 27, 100, '', 120)
-Truck3 = Truck(env, 'Truck3', 2, endpoint3, [], [], endpoint9, '', '', 0.000055556, 27, 100, '', 120)
-Truck4 = Truck(env, 'Truck4', 2, endpoint3, [], [], endpoint9, '', '', 0.000055556, 27, 100, '', 120)
+Truck3 = Truck(env, 'Truck3', 2, endpoint3, [], [], endpoint13, '', '', 0.000055556, 27, 100, '', 120)
+Truck4 = Truck(env, 'Truck4', 2, endpoint3, [], [], endpoint5, '', '', 0.000055556, 27, 100, '', 120)
 Truck5 = Truck(env, 'Truck5', 2, endpoint3, [], [], endpoint9, '', '', 0.000055556, 27, 100, '', 120)
 
 
@@ -659,7 +662,7 @@ if __name__ == '__main__':  # Main guard, prevents running sim on module import 
 
     print("Localgists ShippingTM (LGS) 2023\n\n"
           "Discrete Event Simulator for Delivery truck operation, follow on-screen prompts to begin.\n"
-          "- Version 1.1.1\n")
+          "- Version 2.0.0\n")
     choice = input("\033[34m Run DES?\033[0m y / n  ")
     if choice == 'y' or choice == 'Y':
         env.run(until=sim_time)
@@ -677,6 +680,6 @@ if __name__ == '__main__':  # Main guard, prevents running sim on module import 
             dict_looper(process_locations_per_second)
         else:
             pass
-
+    weight_check()
     graph_start(global_node_list)
 
